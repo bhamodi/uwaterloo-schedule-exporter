@@ -101,10 +101,11 @@ function wrapICalContent(iCalContent) {
  * navigator.languages[0] is more accurate, but only exists in firefox and chrome
  * navigator.language is more supported, but less accurate
  * See: http://stackoverflow.com/a/31135571
+ * @return {String} browser's locale
  */
 function getLocale() {
   if (navigator.languages != undefined) {
-    return navigator.languages[0]; 
+    return navigator.languages[0];
   } else {
     return navigator.language;
   }
