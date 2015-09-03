@@ -26,7 +26,10 @@ function getDateString(date) {
  * @return {String} formatted time ('163000')
  */
 function getTimeString(time) {
-  var timeString = time.substr(0, time.length - 2);
+  var timeString = time;
+  if (time.match(/[AP]M/)) {
+    var timeString = time.substr(0, time.length - 2);
+  }
   var parts = timeString.split(':');
   if (parts[0].length !== 2) {
     parts[0] = '0' + parts[0];
@@ -94,11 +97,27 @@ function wrapICalContent(iCalContent) {
 }
 
 /**
+ * Makes a best effort to determine the locale of the browser.
+ * navigator.languages[0] is more accurate, but only exists in firefox and chrome
+ * navigator.language is more supported, but less accurate
+ * See: http://stackoverflow.com/a/31135571
+ */
+function getLocale() {
+  if (navigator.languages != undefined) {
+    return navigator.languages[0]; 
+  } else {
+    return navigator.language;
+  }
+}
+
+/**
  * Extracts course schedule info and creates a downloadable iCalendar (.ics) file.
  */
 var main = function() {
   var iCalContentArray = [];
   var timezone = 'America/Toronto';
+
+  moment.locale(getLocale());
 
   $('.PSGROUPBOXWBO').each(function() {
     var eventTitle = $(this).find('.PAGROUPDIVIDER').text().split(' - ');
@@ -120,7 +139,7 @@ var main = function() {
       }
 
       var daysTimes = $(this).find('span[id*="MTG_SCHED"]').text();
-      var startEndTimes = daysTimes.match(/\d\d?:\d\d[AP]M/g);
+      var startEndTimes = daysTimes.match(/\d\d?:\d\d([AP]M)?/g);
 
       if (startEndTimes) {
         var daysOfWeek = getDaysOfWeek(daysTimes.match(/[A-Za-z]* /)[0]);
@@ -133,14 +152,14 @@ var main = function() {
 
         // Start the event one day before the actual start date, then exclude it in an exception date
         // rule. This ensures an event does not occur on startDate if startDate is not on part of daysOfWeek.
-        var startDate = new Date(startEndDate.substring(0, 10));
+        var startDate = moment(startEndDate.substring(0, 10), 'L').toDate();
         startDate.setDate(startDate.getDate() - 1);
 
         // End the event one day after the actual end date. Technically, the RRULE UNTIL field should
         // be the start time of the last occurrence of an event. However, since the field does not
         // accept a timezone (only UTC time) and Toronto is always behind UTC, we can just set the
         // end date one day after and be guaranteed that no other occurrence of this event.
-        var endDate = new Date(startEndDate.substring(13, 23));
+        var endDate = moment(startEndDate.substring(13, 23), 'L').toDate();
         endDate.setDate(endDate.getDate() + 1);
 
         var iCalContent =
