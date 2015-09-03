@@ -12,7 +12,7 @@
       "all_frames": true,
       "js": [
         "jquery-2.1.4.min.js",
-        "moment.min.js",
+        "moment-with-locales.min.js",
         "main.js"
       ]
     }
