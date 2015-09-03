@@ -96,6 +96,12 @@ function wrapICalContent(iCalContent) {
     'END:VCALENDAR\n';
 }
 
+/**
+ * Makes a best effort to determine the locale of the browser.
+ * navigator.languages[0] is more accurate, but only exists in firefox and chrome
+ * navigator.language is more supported, but less accurate
+ * See: http://stackoverflow.com/a/31135571
+ */
 function getLocale() {
   if (navigator.languages != undefined) {
     return navigator.languages[0]; 
