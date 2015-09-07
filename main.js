@@ -191,9 +191,7 @@ var main = function() {
   });
 
   $('.PATRANSACTIONTITLE').append(
-    ' (<a href="#" onclick="window.open(\'data:text/calendar;charset=utf8,' +
-    encodeURIComponent(wrapICalContent(iCalContentArray.join(''))) +
-    '\');">Download Schedule</a>)'
+    ' (<a href="data:text/calendar;charset=UTF-8,' + encodeURIComponent(wrapICalContent(iCalContentArray.join(''))) + '" download="schedule.ics">Download Schedule</a>)'
   );
 };
 
