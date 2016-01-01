@@ -1,6 +1,6 @@
 /**
 * uWaterloo Schedule Exporter
-* (c) 2015 Baraa Hamodi
+* (c) 2015-2016 Baraa Hamodi
 */
 
 /**
