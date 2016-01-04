@@ -117,6 +117,7 @@ function getLocale() {
 var main = function() {
   var iCalContentArray = [];
   var timezone = 'America/Toronto';
+  var numberOfEvents = 0;
 
   moment.locale(getLocale());
 
@@ -186,13 +187,20 @@ var main = function() {
         iCalContent = iCalContent.replace(/\s{2,}/g, ' ');
 
         iCalContentArray.push(iCalContent);
+        numberOfEvents++;
       }
     });
   });
 
-  $('.PATRANSACTIONTITLE').append(
-    ' (<a href="data:text/calendar;charset=UTF-8,' + encodeURIComponent(wrapICalContent(iCalContentArray.join(''))) + '" download="schedule.ics">Download Schedule</a>)'
-  );
+  // If no events were found, notify the user. Otherwise, proceed to download the ICS file.
+  if (numberOfEvents == 0) {
+    $('.PATRANSACTIONTITLE').append(' (<a href="#">Download Schedule</a>)').click(function() {
+      alert('Unable to create a schedule. No days or times were found on this page.');
+      return false;
+    });
+  } else {
+    $('.PATRANSACTIONTITLE').append(' (<a href="data:text/calendar;charset=UTF-8,' + encodeURIComponent(wrapICalContent(iCalContentArray.join(''))) + '" download="schedule.ics">Download Schedule</a>)');
+  }
 };
 
 // Execute main function only when user is in the Enroll/my_class_schedule tab.
