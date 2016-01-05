@@ -199,7 +199,14 @@ var main = function() {
       return false;
     });
   } else {
-    $('.PATRANSACTIONTITLE').append(' (<a href="data:text/calendar;charset=UTF-8,' + encodeURIComponent(wrapICalContent(iCalContentArray.join(''))) + '" download="schedule.ics">Download Schedule</a>)');
+    var studentName = $('#DERIVED_SSTSNAV_PERSON_NAME').text().toLowerCase();
+    studentName = studentName.replace(/\ /g, '-');  // Replace spaces with dashes
+    var fileName = studentName + '-uw-class-schedule.ics';
+    $('.PATRANSACTIONTITLE').append(
+      ' (<a href="data:text/calendar;charset=UTF-8,' +
+      encodeURIComponent(wrapICalContent(iCalContentArray.join(''))) +
+      '" download="' + fileName + '">Download Schedule</a>)'
+    );
   }
 };
 
