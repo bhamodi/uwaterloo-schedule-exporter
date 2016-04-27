@@ -193,26 +193,47 @@ var main = function() {
   });
 
   // If no events were found, notify the user. Otherwise, proceed to download the ICS file.
-  if (numberOfEvents == 0) {
-    $('.PATRANSACTIONTITLE').append(' (<a href="#">Download Schedule</a>)').click(function() {
-      alert('Unable to create a schedule. No days or times were found on this page.');
-      return false;
-    });
-  } else {
-    var studentName = $('#DERIVED_SSTSNAV_PERSON_NAME').text().toLowerCase();
-    studentName = studentName.replace(/\ /g, '-');  // Replace spaces with dashes
-    var fileName = studentName + '-uw-class-schedule.ics';
-    $('.PATRANSACTIONTITLE').append(
-      ' (<a href="data:text/calendar;charset=UTF-8,' +
-      encodeURIComponent(wrapICalContent(iCalContentArray.join(''))) +
-      '" download="' + fileName + '">Download Schedule</a>)'
-    );
+  if ($('.PATRANSACTIONTITLE').text().indexOf('Download') < 0) {
+    if (numberOfEvents === 0) {
+      $('.PATRANSACTIONTITLE').append(' (<a href="#">Download Schedule</a>)').click(function() {
+        alert('Unable to create a schedule. No days or times were found on this page. Please make sure to be in List View.');
+        return false;
+      });
+    } else {
+      var studentName = $('#DERIVED_SSTSNAV_PERSON_NAME').text().toLowerCase();
+      studentName = studentName.replace(/\ /g, '-');  // Replace spaces with dashes
+      var fileName = studentName + '-uw-class-schedule.ics';
+
+      $('.PATRANSACTIONTITLE').append(
+        ' (<a href="data:text/calendar;charset=UTF-8,' +
+        encodeURIComponent(wrapICalContent(iCalContentArray.join(''))) +
+        '" download="' + fileName + '">Download Schedule</a>)'
+      );
+    }
   }
 };
 
-// Execute main function only when user is in the Enroll/my_class_schedule tab.
-$('.SSSTABACTIVE').each(function() {
-  if ($(this).text() === 'my class schedule') {
-    main();
-  }
+// Start checking after user selects a study term.
+$(document).ready(function() {
+  $('.SSSBUTTON_CONFIRMLINK').click(function() {
+    $('iframe').ready(function() {
+      $('.SSSTABACTIVE').each(function() {
+        if ($(this).text() === 'my class schedule') {
+          setTimeout(function() {
+            main();
+          }, 2000);
+        }
+      });
+    });
+  });
+
+  // Execute main function only when user is in the Enroll/my_class_schedule tab.
+  $('.SSSTABACTIVE').each(function() {
+    if ($(this).text() === 'my class schedule') {
+      // Only display the download button when the user is in List View.
+      if ($('.PSRADIOBUTTON')[0].checked) {
+        main();
+      }
+    }
+  });
 });
