@@ -11,7 +11,7 @@
       "matches": ["https://quest.pecs.uwaterloo.ca/*"],
       "all_frames": true,
       "js": [
-        "jquery-2.1.4.min.js",
+        "jquery-2.2.3.min.js",
         "moment-with-locales.min.js",
         "main.js"
       ]
