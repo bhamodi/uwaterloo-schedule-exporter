@@ -1,6 +1,6 @@
 /**
 * uWaterloo Schedule Exporter
-* (c) 2015-2016 Baraa Hamodi
+* (c) 2015-Present, Baraa Hamodi
 */
 
 /**
@@ -98,8 +98,8 @@ function wrapICalContent(iCalContent) {
 
 /**
  * Makes a best effort to determine the locale of the browser.
- * navigator.languages[0] is more accurate, but only exists in firefox and chrome
- * navigator.language is more supported, but less accurate
+ * navigator.languages[0] is more accurate, but only exists in Firefox and Chrome.
+ * navigator.language is more supported, but less accurate.
  * See: http://stackoverflow.com/a/31135571
  * @return {String} browser's locale
  */
@@ -201,7 +201,7 @@ var main = function() {
       });
     } else {
       var studentName = $('#DERIVED_SSTSNAV_PERSON_NAME').text().toLowerCase();
-      studentName = studentName.replace(/\ /g, '-');  // Replace spaces with dashes
+      studentName = studentName.replace(/\ /g, '-');  // Replace spaces with dashes.
       var fileName = studentName + '-uw-class-schedule.ics';
 
       $('.PATRANSACTIONTITLE').append(
