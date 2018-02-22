@@ -125,7 +125,7 @@ var main = function() {
     var eventTitle = $(this).find('.PAGROUPDIVIDER').text().split(' - ');
     var courseCode = eventTitle[0];
     var courseName = eventTitle[1];
-    var componentRows = $(this).find('.PSLEVEL3GRIDNBO').find('tr');
+    var componentRows = $(this).find('.PSLEVEL3GRID').find('tr');
 
     componentRows.each(function() {
       var classNumber = $(this).find('span[id*="DERIVED_CLS_DTL_CLASS_NBR"]').text();
@@ -213,27 +213,12 @@ var main = function() {
   }
 };
 
-// Start checking after user selects a study term.
 $(document).ready(function() {
-  $('.SSSBUTTON_CONFIRMLINK').click(function() {
-    $('iframe').ready(function() {
-      $('.SSSTABACTIVE').each(function() {
-        if ($(this).text() === 'my class schedule') {
-          setTimeout(function() {
-            main();
-          }, 2000);
-        }
-      });
-    });
-  });
-
   // Execute main function only when user is in the Enroll/my_class_schedule tab.
-  $('.SSSTABACTIVE').each(function() {
-    if ($(this).text() === 'my class schedule') {
-      // Only display the download button when the user is in List View.
-      if ($('.PSRADIOBUTTON')[0].checked) {
-        main();
-      }
+  if ($('.PATRANSACTIONTITLE').text() === 'My Class Schedule') {
+    // Only display the download button when the user is in List View.
+    if ($('.PSRADIOBUTTON')[0].checked) {
+      main();
     }
-  });
+  }
 });
