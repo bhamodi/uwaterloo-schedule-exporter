@@ -84,16 +84,48 @@ function getDaysOfWeek(daysOfWeek) {
 }
 
 /**
+ * Increments starting date to match day of repeating event in RRULE.
+ * @param {Object} date
+ * @param {Array<String>} eventDays
+ * @return {Object} date
+ */
+function incrementDateDay(date, eventDays){
+  var days = [
+    'SU',
+    'MO',
+    'TU',
+    'WE',
+    'TH',
+    'FR',
+    'SA'];
+
+  // Increment the date until it matches one of the event days.
+  var currentDay = days[date.getDay()];
+  while(!eventDays.includes(currentDay))
+  {
+    date.setDate(date.getDate() + 1);
+    currentDay = days[date.getDay()];
+  }
+  return date;
+}
+
+/**
  * Wraps calendar event content into the required calendar format.
  * @param {String} iCalContent
  * @return {String} formatted calendar content
  */
 function wrapICalContent(iCalContent) {
-  return 'BEGIN:VCALENDAR\n' +
-    'VERSION:2.0\n' +
-    'PRODID:-//Baraa Hamodi/uWaterloo Schedule Exporter//EN\n' +
+  return 'BEGIN:VCALENDAR\r\n' +
+    'METHOD:PUBLISH\r\n' +
+    'PRODID:-//Baraa Hamodi/uWaterloo Schedule Exporter//EN\r\n' +
+    'VERSION:2.0\r\n' +
+    'X-WR-CALNAME:UWQuest Export\r\n' +
+    'X-WR-TIMEZONE:America/Toronto\r\n' +
+    'BEGIN:VTIMEZONE\r\n' +
+    'TZID:Eastern Standard Time\r\n' +
+    'END:VTIMEZONE\r\n' +
     iCalContent +
-    'END:VCALENDAR\n';
+    'END:VCALENDAR\r\n';
 }
 
 /**
@@ -151,43 +183,49 @@ var main = function() {
         var room = $(this).find('span[id*="MTG_LOC"]').text();
         var instructor = $(this).find('span[id*="DERIVED_CLS_DTL_SSR_INSTR_LONG"]').text();
         var startEndDate = $(this).find('span[id*="MTG_DATES"]').text();
+        //alert(startEndDate); // Debugging
+        //alert(startEndDate.substring(13, 23));
 
-        // Start the event one day before the actual start date, then exclude it in an exception date
-        // rule. This ensures an event does not occur on startDate if startDate is not on part of daysOfWeek.
-        var startDate = moment(startEndDate.substring(0, 10), 'L').toDate();
-        startDate.setDate(startDate.getDate() - 1);
+        // Increment the start date until its day matches one of the days in daysOfWeek.
+        // This ensures an event does not occur on startDate if startDate is not on part of daysOfWeek.
+        var startDate = moment(startEndDate.substring(0, 10), 'MM/DD/YYYY').toDate();
+        //startDate.setDate(startDate.getDate() - 1); // Start one day before the start date.
+        var days = daysOfWeek.split(',');
+        startDate = incrementDateDay(startDate, days);
 
         // End the event one day after the actual end date. Technically, the RRULE UNTIL field should
         // be the start time of the last occurrence of an event. However, since the field does not
-        // accept a timezone (only UTC time) and Toronto is always behind UTC, we can just set the
-        // end date one day after and be guaranteed that no other occurrence of this event.
-        var endDate = moment(startEndDate.substring(13, 23), 'L').toDate();
+        // accept a timezone (only UTC time) and America/Toronto is always behind UTC, we can just set the
+        // end date one day after and be guaranteed of no other occurrence of this event.
+        var endDate = moment(startEndDate.substring(13, 23), 'MM/DD/YYYY').toDate();
         endDate.setDate(endDate.getDate() + 1);
 
         var iCalContent =
-          'BEGIN:VEVENT\n' +
-          'DTSTART;TZID=' + timezone + ':' + getDateTimeString(startDate, startTime) + '\n' +
-          'DTEND;TZID=' + timezone + ':' + getDateTimeString(startDate, endTime) + '\n' +
-          'LOCATION:' + room + '\n' +
-          'RRULE:FREQ=WEEKLY;UNTIL=' + getDateTimeString(endDate, endTime) + 'Z;BYDAY=' + daysOfWeek + '\n' +
-          'EXDATE;TZID=' + timezone + ':' + getDateTimeString(startDate, startTime) + '\n' +
-          'SUMMARY:' + courseCode + ' (' + component + ') in ' + room + '\n' +
-          'DESCRIPTION:' +
-            'Course Name: ' + courseName + '\\n' +
-            'Section: ' + section + '\\n' +
-            'Instructor: ' + instructor + '\\n' +
-            'Component: ' + component + '\\n' +
-            'Class Number: ' + classNumber + '\\n' +
-            'Days/Times: ' + daysTimes + '\\n' +
-            'Start/End Date: ' + startEndDate + '\\n' +
-            'Location: ' + room + '\\n\n' +
-          'END:VEVENT\n';
+          'BEGIN:VEVENT\r\n' +
+          'DTSTART;TZID=' + timezone + ':' + getDateTimeString(startDate, startTime) + '\r\n' +
+          'DTEND;TZID=' + timezone + ':' + getDateTimeString(startDate, endTime) + '\r\n' +
+          'RRULE:FREQ=WEEKLY;UNTIL=' + getDateTimeString(endDate, endTime) + 'Z;BYDAY=' + daysOfWeek + ';\r\n' +
+          'DTSTAMP:20180101T000000Z\r\n' +
+          'UID:1' + Math.random().toString(36).replace('0.', '') + Math.random().toString(36).replace('0.', '') + Math.random().toString(36).replace('0.', '') + Math.random().toString(36).replace('0.', '') + '\r\n' +
+          'CREATED:20180101T000000Z\r\n' +
+          'DESCRIPTION:' + classNumber + '-' + courseName + ' - ' + instructor + '\r\n' +
+          'LAST-MODIFIED:20180101T000000Z\r\n' +
+          'LOCATION:' + room + '\r\n' +
+          'SEQUENCE:0\r\n' +
+          'STATUS:CONFIRMED\r\n' +
+          'SUMMARY:' + courseCode + '-' + section + ' (' + component + ')'/*in ' + room*/ + '\r\n' +
+          'TRANSP:OPAQUE\r\n' +
+          //'EXDATE;TZID=' + timezone + ':' + getDateTimeString(startDate, startTime) + '\r\n' +
+          'END:VEVENT\r\n';
+          
+        //alert(iCalContent); // Debugging
 
         // Remove double spaces from content.
-        iCalContent = iCalContent.replace(/\s{2,}/g, ' ');
+        //iCalContent = iCalContent.replace(/\s{2,}/g, ' ');
 
         iCalContentArray.push(iCalContent);
         numberOfEvents++;
+        //alert(numberOfEvents);
       }
     });
   });
