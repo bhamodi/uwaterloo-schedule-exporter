@@ -1,6 +1,7 @@
 /**
 * uWaterloo Schedule Exporter
 * (c) 2015-Present, Baraa Hamodi
+* (c) 2018-Present, Xierumeng with permission from Baraa Hamodi
 */
 
 /**
@@ -182,6 +183,7 @@ var main = function() {
 
         var room = $(this).find('span[id*="MTG_LOC"]').text();
         var instructor = $(this).find('span[id*="DERIVED_CLS_DTL_SSR_INSTR_LONG"]').text();
+        instructor = instructor.replace(/(\r\n|\n|\r)/gm,""); // Strip any line breaks
         var startEndDate = $(this).find('span[id*="MTG_DATES"]').text();
         //alert(startEndDate); // Debugging
         //alert(startEndDate.substring(13, 23));
@@ -251,11 +253,28 @@ var main = function() {
   }
 };
 
+var debug = false;
+/**
+ * Debug logging
+ * @param {String} string ('4:30PM')
+ */
+function logger(string) {
+  if (debug) {
+    console.log('uwaterloo-schedule-exporter: ' + string);
+  }
+}
+
 $(document).ready(function() {
+  // Debugging
+  //debug = true;
+  logger('Document ready');
   // Execute main function only when user is in the Enroll/my_class_schedule tab.
-  if ($('.PATRANSACTIONTITLE').text() === 'My Class Schedule') {
+  //logger(document.getElementById("DERIVED_REGFRM1_SS_TRANSACT_TITLE").textContent);
+  if (document.getElementById("DERIVED_REGFRM1_SS_TRANSACT_TITLE") &&
+      document.getElementById("DERIVED_REGFRM1_SS_TRANSACT_TITLE").textContent === 'My Class Schedule') {
     // Only display the download button when the user is in List View.
-    if ($('.PSRADIOBUTTON')[0].checked) {
+    logger(document.getElementById("DERIVED_REGFRM1_SSR_SCHED_FORMAT$258$").checked);
+    if (document.getElementById("DERIVED_REGFRM1_SSR_SCHED_FORMAT$258$").checked) {
       main();
     }
   }
